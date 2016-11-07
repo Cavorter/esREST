@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>esREST</id>
+		<version>1.0.0</version>
+		<authors>nstohlmann</authors>
+		<owners>Verify Brand</owners>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>Wraps Elastic Search REST endpoints with PowerShell functions.</description>
+		<releaseNotes></releaseNotes>
+		<copyright>Copyright 2016</copyright>
+		<tags>ElasticSearch REST PowerShell</tags>
+		<dependencies>
+			<!-- <dependency id="" /> -->
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="esREST.ps*" />
+		<file src="Functions\**\*.*" exclude="**\*.Tests.*" target="Functions" />
+	</files>
+</package>
