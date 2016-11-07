@@ -1,12 +1,15 @@
 ﻿function Get-ESUser {
 	<#
 		.SYNOPSIS
-			Returns one or more users from an ElasticSearch cluster
+			Returns one or more native users from an ElasticSearch cluster
 		.DESCRIPTION
-			Returns one or more users from an ElasticSearch cluster.
+			Returns one or more native users from an ElasticSearch cluster.
+			
+			NOTE: This will not retrieve information for users from the "file realm" on a cluster and if no users exist in the "native" realm then no records will be returned.
+			
 			Wraps the /_shield/user REST endpoint.
 		.PARAMETER User
-			One or more user accounts to return.
+			One or more user accounts to return. If the parameter is not specified all native users are returned.
 		.PARAMETER BaseURI
 			The URI for an ElasticSearch server. If not specified uses the value of $env:esBaseURI
 		.PARAMETER Credential
