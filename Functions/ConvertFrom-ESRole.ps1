@@ -19,12 +19,20 @@
 	)
 	Process {
 		$result = @{}
-		$result.cluster = $Role.ClusterPrivilege
-		$result.indices = @()
-		foreach ( $privGroup in $Role.IndexPrivilegeGroup ) {
-			$result.indices += @{ names = $privGroup.Index ; privileges = $privGroup.Privilege ; fields = $privGroup.Field }
+		if ( $Role.ClusterPrivilege ) { $result.cluster = $Role.ClusterPrivilege }
+		
+		if ( $Role.IndexPrivilegeGroup ) {
+			$result.indices = @()
+			foreach ( $privGroup in $Role.IndexPrivilegeGroup ) {
+				$privHash = @{}
+				$privHash.names = $privGroup.Index
+				$privHash.privileges = $privGroup.Privilege
+				if ( $privGroup.Field ) { $privHash.fields = $privGroup.Field }
+				$result.indices += $privHash
+			}
 		}
-		$result.run_as = $Role.RunAs
+		
+		if ( $Role.RunAs ) { $result.run_as = $Role.RunAs }
 		Write-Output ( $result | ConvertTo-Json -Depth 100 -Compress )
 	}
 }
