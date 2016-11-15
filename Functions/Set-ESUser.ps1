@@ -21,9 +21,9 @@
 		.PARAMETER Metadata
 			A hashtable of arbitrary custom settings for the user.
 		.PARAMETER BaseURI
-			The URI for an ElasticSearch server. If not specified uses the value of $env:esBaseURI
+			The URI for an ElasticSearch server
 		.PARAMETER Credential
-			User account for specified ElasticSearch server. If not specified users the value of $esCredential
+			User account for specified ElasticSearch server
 		.LINKS
 			https://www.elastic.co/guide/en/shield/current/shield-rest.html#shield-users-rest
 	#>
@@ -45,11 +45,11 @@
 		
 		[hashtable]$Metadata,
 		
-		[ValidateNotNullOrEmpty()]
-		[string]$BaseURI = $env:esBaseURI,
+		[Parameter(Mandatory=$true)]
+		[string]$BaseURI,
 		
-		[ValidateScript({ $_ -ne $null })]
-		[pscredential]$Credential = $esCredential
+		[Parameter(Mandatory=$true)]
+		[pscredential]$Credential
 	)
 	Begin {
 		# Set the request URI
