@@ -16,6 +16,7 @@
 	</metadata>
 	<files>
 		<file src="esREST.ps*" />
+		<file src="esREST-Types.cs" />
 		<file src="Functions\**\*.*" exclude="**\*.Tests.*" target="Functions" />
 	</files>
 </package>
