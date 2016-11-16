@@ -6,10 +6,6 @@ Set-Alias -Name Test-Function -Value $functionName -Scope Script
 Describe "$functionName" {
 	Mock -CommandName Invoke-RestMethod -MockWith { return $true }
 	
-	#store existing environment values
-	$existingBaseUri = $env:esBaseUri
-	$existingCredential = $esCredential
-	
 	$goodUri = "http://some.esserver.com:12345"
 	$goodCreds = [pscredential]::new( "SomeUser" , ( ConvertTo-SecureString -String "SomePassword" -AsPlainText -Force ) )
 	$commonParams = @{ BaseURI = $goodUri; Credential = $goodCreds }
@@ -19,9 +15,6 @@ Describe "$functionName" {
 	$goodParams = @{ Username = $goodUser }
 	
     Context "Standard parameter tests" {
-		$env:esBaseUri = $null
-		$esCredential = $null
-		
 		It "throws if the BaseURI parameter is null or not specified" {
 			{ Test-Function @goodParams -Credential $goodCreds -BaseURI } | Should Throw
 		}
