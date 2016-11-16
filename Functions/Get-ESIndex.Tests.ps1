@@ -43,10 +43,23 @@ Describe "$functionName" {
 		}
 		
 		It "passes the value of the Name parameter properly" {
-			$mockParams = @{ CommandName = "Invoke-RestMethod"; ParameterFilter = { $Uri -like "$goodUri/$nameVal" } }
+			$mockParams = @{ CommandName = "Invoke-RestMethod"; ParameterFilter = { $Uri -like "$goodUri/$nameVal/*" } }
 			Mock @mockParams -MockWith { return $true }
 			Test-Function @goodParams @commonParams
 			Assert-MockCalled @mockParams -Exactly 1 -Scope It
+		}
+		
+		It "only accepts specific values for the Feature parameter" {
+			{ Test-Function @commonParams @goodParams -Feature "NotAFeature" } | Should Throw
+		}
+		
+		foreach ( $featureVal in @( "settings" , "mappings" , "warmers" , "aliases" ) ) {
+			It "it accepts and processes the value $featureVal for the Feature parameter properly" {
+				$mockParams = @{ CommandName = "Invoke-RestMethod"; ParameterFilter = { $Uri -like "$goodUri/$nameVal/_$featureVal" } }
+				Mock @mockParams -MockWith { return $true }
+				Test-Function @goodParams @commonParams -Feature $featureVal
+				Assert-MockCalled @mockParams -Exactly 1 -Scope It
+			}
 		}
 	}
 }
