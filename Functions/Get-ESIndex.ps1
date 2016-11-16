@@ -14,6 +14,9 @@
 		[Parameter(Mandatory=$true)]
 		[string]$Name,
 		
+		[ValidateSet( "settings" , "mappings" , "warmers" , "aliases" )]
+		[string]$Feature = "settings",
+		
 		[Parameter(Mandatory=$true)]
 		[string]$BaseURI,
 		
@@ -23,12 +26,12 @@
 	
 	begin {
 		if ( $BaseURI[-1] -eq '/' ) { $BaseURI = $BaseURI.Substring( 0 , $BaseURI.Length - 1 ) }
-		[uri]$uri = "$BaseURI/$Name"
+		[uri]$uri = "$BaseURI/$Name/_$($Feature.ToLower())"
 		Write-Verbose "Uri: $($uri.AbsoluteUri)"
 	}
 	
 	process {
-		$result = Invoke-RestMethod -UseBasicParsing -Credential $Credential -Method Delete -Uri $uri
+		$result = Invoke-RestMethod -UseBasicParsing -Credential $Credential -Uri $uri
 		$resultText = $result | ConvertTo-Json -Depth 100 -Compress
 		Write-Verbose "Result: $resultText"
 		Write-Output $result
