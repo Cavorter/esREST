@@ -11,55 +11,40 @@ Describe "$functionName" {
 	$commonParams = @{ BaseURI = $goodUri; Credential = $goodCreds }
 	
 	$nameVal = "someIndex"
+	$featureValues = @( "settings" , "mappings" , "warmers" , "aliases" , "stats" )
 	$goodParams = @{ Name = $nameVal }
 	
-    Context "Standard parameter tests" {
-		It "throws if the BaseURI parameter is null or not specified" {
-			{ Test-Function @goodParams -Credential $goodCreds -BaseURI } | Should Throw
+	Context "Standard Parameter Tests" {
+		$mandatoryKeys = @()
+		$mandatoryKeys += $goodParams.Keys
+		$mandatoryKeys += $commonParams.Keys
+		foreach ( $mandatory in $mandatoryKeys ) {
+			It "the Mandatory attribute for the $mandatory parameter is $true" {
+				( Get-Command -Name $functionName ).Parameters."$mandatory".ParameterSets.__AllParameterSets.IsMandatory | Should Be $true
+			}
 		}
 		
-		It "throws if the Credential parameter is null or not specified" {
-			{ Test-Function @goodParams -BaseURI $goodUri -Credential } | Should Throw
-		}
+		$testResult = Test-Function @goodParams @commonParams
 		
 		It "passes the value for the BaseURI parameter" {
-			$mockParams = @{ CommandName = "Invoke-RestMethod"; ParameterFilter = { $Uri -like "$goodUri/*" } }
-			Mock @mockParams -MockWith { return $true }
-			Test-Function @goodParams @commonParams
-			Assert-MockCalled @mockParams -Exactly 1 -Scope It
+			Assert-MockCalled -Exactly 1 -Scope Context -CommandName Invoke-RestMethod -ParameterFilter { $Uri -like "$goodUri*" }
 		}
 		
 		It "passes the value for the Credential parameter" {
-			$mockParams = @{ CommandName = "Invoke-RestMethod"; ParameterFilter = { $Credential -eq $goodCreds } }
-			Mock @mockParams -MockWith { return $true }
-			Test-Function @goodParams @commonParams
-			Assert-MockCalled @mockParams -Exactly 1 -Scope It
+			Assert-MockCalled -Exactly 1 -Scope Context -CommandName Invoke-RestMethod -ParameterFilter { $Credential -eq $goodCreds }
 		}
 	}
 	
 	Context "Parameter Tests" {
-		It "throws if the Name parameter is null or empty" {
-			{ Test-Function @commonParams -Name } | Should Throw
-		}
+		Test-Function @goodParams @commonParams
 		
 		It "passes the value of the Name parameter properly" {
-			$mockParams = @{ CommandName = "Invoke-RestMethod"; ParameterFilter = { $Uri -like "$goodUri/$nameVal/*" } }
-			Mock @mockParams -MockWith { return $true }
-			Test-Function @goodParams @commonParams
-			Assert-MockCalled @mockParams -Exactly 1 -Scope It
+			Assert-MockCalled -Exactly 1 -Scope It -CommandName Invoke-RestMethod -ParameterFilter { $Uri -like "$goodUri/$nameVal/*" }
 		}
 		
-		It "only accepts specific values for the Feature parameter" {
-			{ Test-Function @commonParams @goodParams -Feature "NotAFeature" } | Should Throw
-		}
-		
-		foreach ( $featureVal in @( "settings" , "mappings" , "warmers" , "aliases" ) ) {
-			It "it accepts and processes the value $featureVal for the Feature parameter properly" {
-				$mockParams = @{ CommandName = "Invoke-RestMethod"; ParameterFilter = { $Uri -like "$goodUri/$nameVal/_$featureVal" } }
-				Mock @mockParams -MockWith { return $true }
-				Test-Function @goodParams @commonParams -Feature $featureVal
-				Assert-MockCalled @mockParams -Exactly 1 -Scope It
-			}
+		It -Name "the Feature parameter accepts only specific values"  -Test {
+			$result = Compare-Object -DifferenceObject (Get-Command -Name $functionName ).Parameters.Feature.Attributes.ValidValues -ReferenceObject $featureValues
+			$result | Should BeNullOrEmpty
 		}
 	}
 }

@@ -14,7 +14,7 @@
 		[Parameter(Mandatory=$true)]
 		[string]$Name,
 		
-		[ValidateSet( "settings" , "mappings" , "warmers" , "aliases" )]
+		[ValidateSet( "settings" , "mappings" , "warmers" , "aliases" , "stats" )]
 		[string]$Feature = "settings",
 		
 		[Parameter(Mandatory=$true)]
