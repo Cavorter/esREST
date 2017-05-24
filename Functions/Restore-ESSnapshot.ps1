@@ -64,7 +64,7 @@
 		if ( $IgnoreGlobalState ) { $options.include_global_state = $false }
 		if ( $IgnoreAliases ) { $options.include_aliases = $false }
 		if ( $RenamePattern -or $RenameReplacement ) {
-			if ( ( -not $RenamePattern ) -or ( -not $RenameReplacement ) ) {
+			if ( ( -not $RenamePattern ) -and ( -not $RenameReplacement ) ) {
 				throw "One of RenamePattern or RenameReplacement parameters specified without specifying BOTH! (RenamePattern: $RenamePattern; RenameReplacement: $RenameReplacement)"
 			} else {
 				$options.rename_pattern = $RenamePattern
@@ -75,6 +75,7 @@
 		if ( $options -ne @{} ) {
 			$invokeParams = @{ Body = $options | ConvertTo-Json -Depth 100 -Compress }
 		}
+		Write-Verbose ( "Restore Options: {0}" -f $invokeParams.Body )
 	}
 	
 	process {
