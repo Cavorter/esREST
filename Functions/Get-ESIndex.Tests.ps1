@@ -39,7 +39,7 @@ Describe "$functionName" {
 		Test-Function @goodParams @commonParams
 		
 		It "passes the value of the Name parameter properly" {
-			Assert-MockCalled -Exactly 1 -Scope It -CommandName Invoke-RestMethod -ParameterFilter { $Uri -like "$goodUri/$nameVal/*" }
+			Assert-MockCalled -Exactly 1 -Scope Context -CommandName Invoke-RestMethod -ParameterFilter { $Uri -like "$goodUri/$nameVal/*" }
 		}
 		
 		It -Name "the Feature parameter accepts only specific values"  -Test {
