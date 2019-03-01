@@ -31,24 +31,35 @@
     )
 	
     begin {
-        if ( $BaseURI[-1] -eq '/' ) { $BaseURI = $BaseURI.Substring( 0 , $BaseURI.Length - 1 ) }
+        $bodyData = @{ settings = @{} }
+
+		if ( $BaseURI[-1] -eq '/' ) { $BaseURI = $BaseURI.Substring( 0 , $BaseURI.Length - 1 ) }
         $uriString = "$BaseURI/$Index"
-		# test if the index already exists
-		if ( Test-ESIndex -Index $Index -BaseURI $BaseURI -Credential $Credential ) {
-			# The index already exists, so use the Update method
-			Write-Verbose "Index already exists. Updating uri string for update operation..."
+        # test if the index already exists
+        if ( Test-ESIndex -Index $Index -BaseURI $BaseURI -Credential $Credential ) {
+            # The index already exists, so use the Update method
+            Write-Verbose "Index already exists. Updating uri string for update operation..."
 			$uriString += "/_settings"
-		} else {
-			# The index does not exist to use the create method
+			
+			Write-Warning "Unable to update shard count on an existing index!"
+			# For more information see the following URLS:
+			#  https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
+			#  https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html
+        }
+        else {
+            # The index does not exist to use the create method
 			Write-Verbose "Creating index $index on $BaseURI..."
-		}
+			
+			# Only attempt to set the shard count during index creation
+			if ( $Shards ) { $bodyData.settings.number_of_shards = $Shards }
+        }
         [uri]$uri = $uriString
         Write-Verbose "Uri: $($uri.AbsoluteUri)"
 		
-        $bodyData = @{ settings = @{} }
-        if ( $Shards ) { $bodyData.settings.number_of_shards = $Shards }
-        if ( $Replicas )	{ $bodyData.settings.number_of_replicas = $Replicas }
-        $body = $bodyData | ConvertTo-Json -Depth 100 -Compress
+		# set the replica count
+		if ( $Replicas )	{ $bodyData.settings.number_of_replicas = $Replicas }
+
+		$body = $bodyData | ConvertTo-Json -Depth 100 -Compress
         Write-Verbose "Body: $body"
     }
 	
